@@ -25,7 +25,5 @@ export async function GET(request: NextRequest) {
   //   grant_type: 'authorization_code',
   // }
 
-  const testo = process.env.TEST ?? 'miao'
-
-  return NextResponse.json(testo)
+  return NextResponse.json('ok')
 }

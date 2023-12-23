@@ -24,7 +24,7 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          buildArgs: TEST=${{ secrets.TEST }}
+          buildArgs: SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
 
   # pull-update-digital-ocean-swarm:
   #   runs-on: ubuntu-latest
