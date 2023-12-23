@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaSpotify } from 'react-icons/fa6'
 import partyPlaylistsPic from '@/public/images/party-playlists.png'
@@ -10,12 +9,6 @@ import { Button } from '@material-tailwind/react'
 import { GlassCard } from '@/components'
 
 export function LoginView() {
-  const router = useRouter()
-
-  const handleSpotifyAuth = () => {
-    console.log('click')
-  }
-
   return (
     <main className="h-full flex-center">
       <AnimatePresence>
@@ -59,7 +52,6 @@ export function LoginView() {
                 placeholder=""
                 className="w-full text-lg normal-case font-semibold rounded-full flex justify-center items-center gap-2"
                 color="green"
-                onClick={handleSpotifyAuth}
               >
                 <FaSpotify className="w-5 h-5" />
                 Accedi
