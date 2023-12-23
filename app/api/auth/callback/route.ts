@@ -1,23 +1,23 @@
-import { redirect } from 'next/navigation'
 import { NextRequest, NextResponse } from 'next/server'
-// import { redisClient } from '@/clients'
+import { redirect } from 'next/navigation'
+import { redisClient } from '@/clients'
 
 export async function GET(request: NextRequest) {
-  // const finalState = request.nextUrl.searchParams.get('state')!
-  // const initialState = await redisClient.get(finalState)
+  const finalState = request.nextUrl.searchParams.get('state')!
+  const initialState = await redisClient.get(finalState)
 
-  // if (!initialState) {
-  //   redirect('/')
-  // }
+  if (!initialState) {
+    redirect('/')
+  }
 
-  // await redisClient.del(finalState)
+  await redisClient.del(finalState)
 
-  // const error = request.nextUrl.searchParams.get('error')
-  // if (error) {
-  //   redirect('/')
-  // }
+  const error = request.nextUrl.searchParams.get('error')
+  if (error) {
+    redirect('/')
+  }
 
-  // const code = request.nextUrl.searchParams.get('code')
+  const code = request.nextUrl.searchParams.get('code')
 
   // const requestDto = {
   //   code: code,

@@ -1,12 +1,13 @@
 import { RedirectType, redirect } from 'next/navigation'
 import querystring from 'querystring'
 import { generateState } from '@/utils'
+import { redisClient } from '@/clients'
 
 export async function GET() {
   const scope = 'user-read-private user-read-email'
   const state = generateState(16)
 
-  // await redisClient.set(state, 'valid')
+  await redisClient.set(state, 'valid')
 
   const spotifyAuthUri =
     'https://accounts.spotify.com/authorize?' +
