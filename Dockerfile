@@ -1,5 +1,8 @@
 FROM node:20-alpine
 
+ARG TEST
+ENV TEST=${TEST}
+
 RUN npm install --location=global npm && \
     npm install --location=global pnpm
 
