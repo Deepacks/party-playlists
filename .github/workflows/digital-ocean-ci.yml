@@ -7,7 +7,6 @@ on:
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
-    environment: TEST
 
     steps:
       - uses: actions/checkout@v4.1.1
@@ -25,6 +24,7 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          buildArgs: TEST=${{ secrets.TEST }}
 
   # pull-update-digital-ocean-swarm:
   #   runs-on: ubuntu-latest
