@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './_animation';
+
+@import './_components.scss';
+@import './_utilities.scss';
+
+body {
+  height: 100dvh;
+  width: 100dvw;
+  color: white;
+  background-color: #121212;
+  overflow: hidden;
+}
