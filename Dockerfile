@@ -1,7 +1,10 @@
 FROM node:20-alpine
 
 ARG SPOTIFY_CLIENT_SECRET
+ARG COOKIE_SECRET
+
 ENV SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+ENV COOKIE_SECRET=${COOKIE_SECRET}
 
 RUN npm install --location=global npm && \
     npm install --location=global pnpm
