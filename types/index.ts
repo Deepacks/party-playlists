@@ -1,2 +1,2 @@
-export * from './cookieData'
+export * from './bearerData'
 export * from './tokenData'

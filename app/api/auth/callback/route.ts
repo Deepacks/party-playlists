@@ -1,89 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { Redis } from 'ioredis'
 import { DateTime } from 'luxon'
-import { AES, format } from 'crypto-js'
 
 import { config } from '@/config'
-import { CookieData, TokenData } from '@/types'
+import { ApiUtils } from '@/utils'
+import { SpotifyClient } from '@/clients'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   const redisClient = new Redis(config.redis)
 
+  // - Get state from callback -
   const finalState = request.nextUrl.searchParams.get('state')!
-  const initialState = await redisClient.get(finalState)
 
-  if (!initialState) {
-    return NextResponse.redirect(process.env.BASE_URL!)
-  }
+  // - Search if state was created, then clear it -
+  const initialState = await redisClient.get(finalState)
+  if (!initialState) return ApiUtils.redirectHome
 
   await redisClient.del(finalState)
 
+  // - Handle eventual errors in params -
   const error = request.nextUrl.searchParams.get('error')
-  if (error) {
-    return NextResponse.redirect(process.env.BASE_URL!)
-  }
+  if (error) return ApiUtils.redirectHome
 
-  const code = request.nextUrl.searchParams.get('code')!
-
-  const dto = {
-    code: code,
-    redirect_uri: process.env.SPOTIFY_REDIRECT_URI!,
-    grant_type: 'authorization_code',
-  }
-
-  const formUrlEncodedBody = Object.entries(dto)
-    .map(
-      ([key, value]) =>
-        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-    )
-    .join('&')
-
-  const tokenExchangeRequest = fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-      Authorization:
-        'Basic ' +
-        Buffer.from(
-          process.env.SPOTIFY_CLIENT_ID! +
-            ':' +
-            process.env.SPOTIFY_CLIENT_SECRET!,
-        ).toString('base64'),
-    },
-    body: formUrlEncodedBody,
-  })
-
+  // - Exchange code for token and create authorization -
   try {
-    const tokenExchangeResponse = await tokenExchangeRequest
+    const code = request.nextUrl.searchParams.get('code')!
 
-    const { access_token, refresh_token, expires_in }: TokenData =
-      await tokenExchangeResponse.json()
+    const { access_token, refresh_token, expires_in } =
+      await SpotifyClient.exchangeCode(code)
 
-    const cookieData: CookieData = {
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      expiryDate: DateTime.fromJSDate(new Date())
-        .plus({ seconds: expires_in })
-        .toJSDate()
-        .toISOString(),
-    }
+    const expiryDate = DateTime.fromJSDate(new Date())
+      .plus({ seconds: expires_in })
+      .toJSDate()
+      .toISOString()
 
-    const encryptedCookieData = AES.encrypt(
-      JSON.stringify(cookieData),
-      process.env.COOKIE_SECRET!,
-    ).toString(format.Hex)
+    const bearerDataString = ApiUtils.createBearerDataString(
+      access_token,
+      refresh_token,
+      expiryDate,
+    )
 
-    return NextResponse.redirect(`${process.env.BASE_URL!}/home`, {
-      headers: {
-        'Set-Cookie': `Authorization=Bearer ${encryptedCookieData}; Path=/; Max-Age=${
-          60 * 60 * 24 * 30
-        }; HttpOnly`,
-      },
-    })
+    return ApiUtils.redirectWithAuthorization(
+      `${process.env.BASE_URL!}/home`,
+      bearerDataString,
+    )
   } catch (error) {
     console.error(error)
-    return NextResponse.redirect(process.env.BASE_URL!)
+    return ApiUtils.redirectHome
   }
 }

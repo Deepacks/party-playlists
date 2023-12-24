@@ -47,7 +47,7 @@ export function LoginView() {
               </p>
             </div>
 
-            <a href="/api/auth/spotify">
+            <a href="/api/auth/login">
               <Button
                 placeholder=""
                 className="w-full text-lg normal-case font-semibold rounded-full flex justify-center items-center gap-2"
