@@ -24,7 +24,7 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          buildArgs: SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }} COOKIE_SECRET=${{secrets.COOKIE_SECRET}}
+          buildArgs: SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }} --build-arg COOKIE_SECRET=${{secrets.COOKIE_SECRET}}
 
   update-service:
     runs-on: ubuntu-latest
