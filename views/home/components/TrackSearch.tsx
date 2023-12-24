@@ -9,6 +9,7 @@ export const TrackSearch: FC = memo(function TrackSearch() {
   return (
     <form className="mt-6 flex gap-6" onSubmit={handleSubmit}>
       <input type="text" />
+
       <Button
         placeholder=""
         className="text-lg normal-case font-semibold rounded-full flex justify-center items-center gap-2"
