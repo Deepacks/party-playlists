@@ -15,14 +15,14 @@ export async function GET(request: NextRequest) {
   const initialState = await redisClient.get(finalState)
 
   if (!initialState) {
-    NextResponse.redirect('/')
+    return NextResponse.redirect('/')
   }
 
   await redisClient.del(finalState)
 
   const error = request.nextUrl.searchParams.get('error')
   if (error) {
-    NextResponse.redirect('/')
+    return NextResponse.redirect('/')
   }
 
   const code = request.nextUrl.searchParams.get('code')

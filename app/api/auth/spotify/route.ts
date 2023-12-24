@@ -30,5 +30,5 @@ export async function GET() {
       state,
     })
 
-  NextResponse.redirect(spotifyAuthUri)
+  return NextResponse.redirect(spotifyAuthUri)
 }
