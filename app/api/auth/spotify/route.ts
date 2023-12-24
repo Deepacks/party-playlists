@@ -6,7 +6,12 @@ import { generateState } from '@/utils'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const redisClient = new Redis()
+  const redisClient = new Redis({
+    host:
+      process.env.NODE_ENV === 'development'
+        ? 'localhost'
+        : 'party-playlists_redis',
+  })
 
   const scope = 'user-read-private user-read-email'
   const state = generateState(16)

@@ -4,7 +4,12 @@ import { Redis } from 'ioredis'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  const redisClient = new Redis()
+  const redisClient = new Redis({
+    host:
+      process.env.NODE_ENV === 'development'
+        ? 'localhost'
+        : 'party-playlists_redis',
+  })
 
   const finalState = request.nextUrl.searchParams.get('state')!
   const initialState = await redisClient.get(finalState)
