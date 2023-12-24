@@ -30,19 +30,21 @@ class SpotifyClientStatic {
     return spotifyAuthUri
   }
 
+  urlEncodeBody(body: { [key: string]: any }) {
+    return Object.entries(body)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      )
+      .join('&')
+  }
+
   async exchangeCode(code: string): Promise<TokenData> {
     const dto = {
       code: code,
       redirect_uri: process.env.SPOTIFY_REDIRECT_URI!,
       grant_type: 'authorization_code',
     }
-
-    const formUrlEncodedBody = Object.entries(dto)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-      )
-      .join('&')
 
     const codeExchangeResponse = await fetch(`${this.baseUrl}/api/token`, {
       method: 'POST',
@@ -56,10 +58,34 @@ class SpotifyClientStatic {
               process.env.SPOTIFY_CLIENT_SECRET!,
           ).toString('base64'),
       },
-      body: formUrlEncodedBody,
+      body: this.urlEncodeBody(dto),
     })
 
     return codeExchangeResponse.json()
+  }
+
+  async refreshToken(refreshToken: string): Promise<TokenData> {
+    const dto = {
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
+    }
+
+    const refreshResponse = await fetch(`${this.baseUrl}/api/token`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization:
+          'Basic ' +
+          Buffer.from(
+            process.env.SPOTIFY_CLIENT_ID! +
+              ':' +
+              process.env.SPOTIFY_CLIENT_SECRET!,
+          ).toString('base64'),
+      },
+      body: this.urlEncodeBody(dto),
+    })
+
+    return refreshResponse.json()
   }
 }
 

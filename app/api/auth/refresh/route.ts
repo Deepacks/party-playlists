@@ -1,20 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 import { ApiUtils } from '@/utils'
+import { SpotifyClient } from '@/clients'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   const bearerData = ApiUtils.getBearerData(request)
-
   if (!bearerData) return ApiUtils.redirectHome
 
-  const dto = {
-    refresh_token: bearerData.refreshToken,
-    grant_type: 'refresh_token',
-  }
+  const { access_token, refresh_token, expires_in } =
+    await SpotifyClient.refreshToken(bearerData.refreshToken)
 
-  console.log(dto)
+  if (!access_token) return ApiUtils.redirectHome
 
-  return NextResponse.json('ok')
+  const bearerDataString = ApiUtils.createBearerDataString(
+    access_token,
+    refresh_token,
+    expires_in,
+  )
+
+  return ApiUtils.redirectWithAuthorization(
+    `${process.env.BASE_URL!}/home`,
+    bearerDataString,
+  )
 }

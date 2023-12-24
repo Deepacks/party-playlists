@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server'
 import { Redis } from 'ioredis'
-import { DateTime } from 'luxon'
 
 import { config } from '@/config'
 import { ApiUtils } from '@/utils'
@@ -31,15 +30,10 @@ export async function GET(request: NextRequest) {
     const { access_token, refresh_token, expires_in } =
       await SpotifyClient.exchangeCode(code)
 
-    const expiryDate = DateTime.fromJSDate(new Date())
-      .plus({ seconds: expires_in })
-      .toJSDate()
-      .toISOString()
-
     const bearerDataString = ApiUtils.createBearerDataString(
       access_token,
       refresh_token,
-      expiryDate,
+      expires_in,
     )
 
     return ApiUtils.redirectWithAuthorization(

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AES, enc } from 'crypto-js'
+import { DateTime } from 'luxon'
 
 import { BearerData } from '@/types'
 
@@ -19,8 +20,13 @@ class ApiUtilsStatic {
   createBearerDataString(
     accessToken: string,
     refreshToken: string,
-    expiryDate: string,
+    expiresIn: number,
   ): string {
+    const expiryDate = DateTime.fromJSDate(new Date())
+      .plus({ seconds: expiresIn })
+      .toJSDate()
+      .toISOString()
+
     const bearerData: BearerData = {
       accessToken,
       refreshToken,
