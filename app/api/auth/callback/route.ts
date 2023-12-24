@@ -1,30 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Redis } from 'ioredis'
 
+import { config } from '@/config'
+
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  const redisClient = new Redis({
-    host:
-      process.env.NODE_ENV === 'development'
-        ? 'localhost'
-        : 'party-playlists_redis',
-  })
+  const redisClient = new Redis(config.redis)
 
   const finalState = request.nextUrl.searchParams.get('state')!
   const initialState = await redisClient.get(finalState)
 
-  const redirectUrlBase = request.nextUrl.origin
-
   if (!initialState) {
-    return NextResponse.redirect(redirectUrlBase)
+    return NextResponse.redirect(process.env.BASE_URL!)
   }
 
   await redisClient.del(finalState)
 
   const error = request.nextUrl.searchParams.get('error')
   if (error) {
-    return NextResponse.redirect(redirectUrlBase)
+    return NextResponse.redirect(process.env.BASE_URL!)
   }
 
   const code = request.nextUrl.searchParams.get('code')
