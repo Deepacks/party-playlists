@@ -1,11 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AES, enc } from 'crypto-js'
 import { DateTime } from 'luxon'
+import axios from 'axios'
 
 import { BearerData } from '@/types'
 
 class ApiUtilsStatic {
   redirectHome = NextResponse.redirect(process.env.BASE_URL!)
+  redirectRefresh = NextResponse.redirect(
+    `${process.env.BASE_URL!}/api/auth/refresh`,
+  )
+
+  respondUnauthorized = NextResponse.json('401 Unauthorized', {
+    status: 401,
+    statusText: 'Unauthorized',
+  })
+  respondRequestRefresh = NextResponse.json('401 Token Expired', {
+    status: 401,
+    statusText: 'Token Expired',
+  })
+
+  createAxiosInstance(baseURL: string) {
+    return axios.create({
+      baseURL,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   redirectWithAuthorization(url: string, bearerData: string) {
     return NextResponse.redirect(url, {
@@ -41,9 +61,16 @@ class ApiUtilsStatic {
     return encryptedBearerData
   }
 
-  getBearerData(request: NextRequest): BearerData | null {
+  withBearerData(
+    request: NextRequest,
+    cb: (bearerData: BearerData) => NextResponse | Promise<NextResponse>,
+    isClientSide = true,
+  ): NextResponse | Promise<NextResponse> {
     const bearer = request.cookies.get('Authorization')?.value
-    if (!bearer) return null
+    if (!bearer) {
+      if (isClientSide) return this.respondUnauthorized
+      else return this.redirectHome
+    }
 
     const encryptedData = bearer.slice(7)
 
@@ -52,9 +79,14 @@ class ApiUtilsStatic {
       process.env.COOKIE_SECRET!,
     ).toString(enc.Utf8)
 
-    const decryptedBearer = JSON.parse(decryptedBearerJSON)
+    const decryptedBearer: BearerData = JSON.parse(decryptedBearerJSON)
 
-    return decryptedBearer
+    if (new Date(decryptedBearer.expiryDate) <= new Date()) {
+      if (isClientSide) return this.respondRequestRefresh
+      else return this.redirectRefresh
+    }
+
+    return cb(decryptedBearer)
   }
 }
 

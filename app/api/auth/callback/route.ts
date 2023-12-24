@@ -3,7 +3,7 @@ import { Redis } from 'ioredis'
 
 import { config } from '@/config'
 import { ApiUtils } from '@/utils'
-import { SpotifyClient } from '@/clients'
+import { SpotifyClient } from '@/clients/spotify'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const code = request.nextUrl.searchParams.get('code')!
 
     const { access_token, refresh_token, expires_in } =
-      await SpotifyClient.exchangeCode(code)
+      await SpotifyClient.tokenApi.exchangeCode(code)
 
     const bearerDataString = ApiUtils.createBearerDataString(
       access_token,

@@ -1,13 +1,27 @@
 import { Redis } from 'ioredis'
 import querystring from 'querystring'
 
-import { generateState } from '@/utils'
 import { config } from '@/config'
+import { generateState } from '@/utils'
 import { TokenData } from '@/types'
 
-class SpotifyClientStatic {
-  private baseUrl = 'https://accounts.spotify.com'
-  private scope = 'user-read-private user-read-email'
+export class SpotifyTokenApi {
+  private baseUrl
+  private scope
+
+  constructor(baseUrl: string, scope: string) {
+    this.baseUrl = baseUrl
+    this.scope = scope
+  }
+
+  private urlEncodeBody(body: { [key: string]: any }) {
+    return Object.entries(body)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      )
+      .join('&')
+  }
 
   async generateAuthRequest() {
     const redisClient = new Redis(config.redis)
@@ -28,15 +42,6 @@ class SpotifyClientStatic {
       })
 
     return spotifyAuthUri
-  }
-
-  urlEncodeBody(body: { [key: string]: any }) {
-    return Object.entries(body)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-      )
-      .join('&')
   }
 
   async exchangeCode(code: string): Promise<TokenData> {
@@ -88,5 +93,3 @@ class SpotifyClientStatic {
     return refreshResponse.json()
   }
 }
-
-export const SpotifyClient = new SpotifyClientStatic()
