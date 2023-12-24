@@ -1,9 +1,13 @@
-import { RedirectType, redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
+import { Redis } from 'ioredis'
 import querystring from 'querystring'
 import { generateState } from '@/utils'
-import { redisClient } from '@/clients'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  const redisClient = new Redis()
+
   const scope = 'user-read-private user-read-email'
   const state = generateState(16)
 
@@ -21,5 +25,5 @@ export async function GET() {
       state,
     })
 
-  redirect(spotifyAuthUri, RedirectType.replace)
+  NextResponse.redirect(spotifyAuthUri)
 }

@@ -1,20 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { redirect } from 'next/navigation'
-import { redisClient } from '@/clients'
+import { Redis } from 'ioredis'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  const redisClient = new Redis()
+
   const finalState = request.nextUrl.searchParams.get('state')!
   const initialState = await redisClient.get(finalState)
 
   if (!initialState) {
-    redirect('/')
+    NextResponse.redirect('/')
   }
 
   await redisClient.del(finalState)
 
   const error = request.nextUrl.searchParams.get('error')
   if (error) {
-    redirect('/')
+    NextResponse.redirect('/')
   }
 
   const code = request.nextUrl.searchParams.get('code')
