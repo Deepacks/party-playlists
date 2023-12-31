@@ -7,11 +7,17 @@ export class SpotifySearchApi {
     this.searchApiClient = ApiUtils.createAxiosInstance(`${baseUrl}/v1/search`)
   }
 
-  async search(query: string) {
+  async search(accessToken: string, query: string) {
     const response = await this.searchApiClient.get('', {
+      headers: { Authorization: `Bearer ${accessToken}` },
       params: {
         q: query,
+        type: 'track',
+        market: 'IT',
+        limit: 3,
       },
     })
+
+    return response.data
   }
 }
