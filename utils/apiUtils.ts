@@ -3,6 +3,7 @@ import { AES, enc } from 'crypto-js'
 import { DateTime } from 'luxon'
 import axios from 'axios'
 
+import { SpotifyApi } from '@/clients/spotify/SpotifyApi'
 import { BearerData } from '@/types'
 
 class ApiUtilsStatic {
@@ -87,6 +88,30 @@ class ApiUtilsStatic {
     }
 
     return cb(decryptedBearer)
+  }
+
+  async handleSpotifyApiMethod<T extends SpotifyApi>({
+    request,
+    spotifyApi,
+    method,
+    args = [],
+  }: {
+    request: NextRequest
+    spotifyApi: T
+    method: keyof T
+    args?: (string | number)[]
+  }): Promise<NextResponse> {
+    return this.withBearerData(request, async (bearerData) => {
+      const spotifyApiMethod = spotifyApi[method] as Function
+
+      const spotifyApiResponse = await spotifyApiMethod.call(
+        spotifyApi,
+        bearerData.accessToken,
+        ...args,
+      )
+
+      return NextResponse.json(spotifyApiResponse)
+    })
   }
 }
 

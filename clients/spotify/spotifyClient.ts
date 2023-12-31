@@ -1,15 +1,16 @@
 import { SpotifySearchApi, SpotifyTokenApi, SpotifyUserApi } from './lib'
+import { spotifyConfig } from './config'
+import { SpotifyPlayerApi } from './lib/playerApi'
 
 class SpotifyClientStatic {
-  private accountsBaseUrl = 'https://accounts.spotify.com'
-  private apiBaseUrl = 'https://api.spotify.com'
+  tokenApi = new SpotifyTokenApi(
+    spotifyConfig.origins.accounts,
+    spotifyConfig.scope,
+  )
 
-  private scope = 'user-read-private user-read-email'
-
-  tokenApi = new SpotifyTokenApi(this.accountsBaseUrl, this.scope)
-
-  searchApi = new SpotifySearchApi(this.apiBaseUrl)
-  userApi = new SpotifyUserApi(this.apiBaseUrl)
+  playerApi = new SpotifyPlayerApi(spotifyConfig.origins.api)
+  searchApi = new SpotifySearchApi(spotifyConfig.origins.api)
+  userApi = new SpotifyUserApi(spotifyConfig.origins.api)
 }
 
 export const SpotifyClient = new SpotifyClientStatic()

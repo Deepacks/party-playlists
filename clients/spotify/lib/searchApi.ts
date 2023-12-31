@@ -1,15 +1,13 @@
-import { ApiUtils } from '@/utils'
+import { SpotifyApi } from '../SpotifyApi'
 
-export class SpotifySearchApi {
-  private searchApiClient
-
+export class SpotifySearchApi extends SpotifyApi {
   constructor(baseUrl: string) {
-    this.searchApiClient = ApiUtils.createAxiosInstance(`${baseUrl}/v1/search`)
+    super(baseUrl, '/v1/search')
   }
 
   async search(accessToken: string, query: string) {
-    const response = await this.searchApiClient.get('', {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const response = await this.apiClient.get('', {
+      headers: this.buildHeaders(accessToken),
       params: {
         q: query,
         type: 'track',
