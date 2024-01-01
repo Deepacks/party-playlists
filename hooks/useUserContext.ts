@@ -13,9 +13,8 @@ export const useUserContext = () => {
   const getUser = useCallback(async () => {
     try {
       const response = await httpLocalClient.get<Me>('/user/me')
-      const me = response.data
 
-      setUser(me)
+      setUser(response.data)
     } catch (error) {
       const response = (error as AxiosError).response
 
