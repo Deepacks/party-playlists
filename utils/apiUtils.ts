@@ -65,11 +65,11 @@ class ApiUtilsStatic {
   withBearerData(
     request: NextRequest,
     cb: (bearerData: BearerData) => NextResponse | Promise<NextResponse>,
-    isClientSide = true,
+    options = { isClientSide: true, isTokenRefresh: false },
   ): NextResponse | Promise<NextResponse> {
     const bearer = request.cookies.get('Authorization')?.value
     if (!bearer) {
-      if (isClientSide) return this.respondUnauthorized
+      if (options.isClientSide) return this.respondUnauthorized
       else return this.redirectHome
     }
 
@@ -82,8 +82,11 @@ class ApiUtilsStatic {
 
     const decryptedBearer: BearerData = JSON.parse(decryptedBearerJSON)
 
-    if (new Date(decryptedBearer.expiryDate) <= new Date()) {
-      if (isClientSide) return this.respondRequestRefresh
+    if (
+      !options.isTokenRefresh &&
+      new Date(decryptedBearer.expiryDate) <= new Date()
+    ) {
+      if (options.isClientSide) return this.respondRequestRefresh
       else return this.redirectRefresh
     }
 

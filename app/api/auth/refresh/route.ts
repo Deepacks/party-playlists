@@ -25,6 +25,6 @@ export async function GET(request: NextRequest) {
         bearerDataString,
       )
     },
-    false,
+    { isClientSide: false, isTokenRefresh: true },
   )
 }
